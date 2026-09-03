@@ -1,0 +1,96 @@
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ==============================
+# Jupyter Notebook
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# IDEs / Editors
+# ==============================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==============================
+# OS
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# Python tools
+# ==============================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ==============================
+# Logs
+# ==============================
+*.log
+
+# ==============================
+# Temporary files
+# ==============================
+*.tmp
+*.temp
+*.bak
+
+# ==============================
+# Environment variables
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Machine Learning generated files
+# ==============================
+# Model files are ignored if they are generated locally.
+# The final model can be force-added to Git if required.
+models/*.joblib
+models/*.pkl
+models/*.pickle
+
+# ==============================
+# Generated reports
+# ==============================
+# Keep the report structure, but ignore temporary/generated files
+# unless explicitly added.
+reports/**/*.tmp
+
+# ==============================
+# Data
+# ==============================
+# Ignore temporary/local datasets
+
+# ==============================
+# Python distribution files
+# ==============================
+build/
+dist/
+*.egg-info/
+
+# ==============================
+# Secrets / credentials
+# ==============================
+*.pem
+*.key
+credentials.json
