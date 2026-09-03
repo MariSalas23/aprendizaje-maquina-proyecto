@@ -1,0 +1,73 @@
+{
+    "dataset": {
+        "observations": 253680,
+        "variables": 22,
+        "missing_values": 0,
+        "duplicated_rows": 23968
+    },
+    "target": {
+        "name": "Diabetes_binary",
+        "distribution": {
+            "0": {
+                "count": 213703,
+                "percentage": 84.24
+            },
+            "1": {
+                "count": 39977,
+                "percentage": 15.76
+            }
+        }
+    },
+    "outliers": {
+        "BMI": {
+            "Q1": 24.0,
+            "Q3": 31.0,
+            "IQR": 7.0,
+            "lower_limit": 13.5,
+            "upper_limit": 41.5,
+            "possible_outliers": 9847,
+            "percentage": 3.88
+        },
+        "MentHlth": {
+            "Q1": 0.0,
+            "Q3": 2.0,
+            "IQR": 2.0,
+            "lower_limit": -3.0,
+            "upper_limit": 5.0,
+            "possible_outliers": 36208,
+            "percentage": 14.27
+        },
+        "PhysHlth": {
+            "Q1": 0.0,
+            "Q3": 3.0,
+            "IQR": 3.0,
+            "lower_limit": -4.5,
+            "upper_limit": 7.5,
+            "possible_outliers": 40949,
+            "percentage": 16.14
+        }
+    },
+    "target_spearman_correlations": {
+        "GenHlth": 0.2957,
+        "HighBP": 0.2703,
+        "BMI": 0.2351,
+        "DiffWalk": 0.2222,
+        "HighChol": 0.2103,
+        "Age": 0.1859,
+        "HeartDiseaseorAttack": 0.1769,
+        "Income": -0.1724,
+        "PhysHlth": 0.1609,
+        "Education": -0.1267,
+        "PhysActivity": -0.1214,
+        "Stroke": 0.1048,
+        "CholCheck": 0.0679,
+        "Smoker": 0.0628,
+        "Veggies": -0.0592,
+        "HvyAlcoholConsump": -0.0567,
+        "MentHlth": 0.0453,
+        "Fruits": -0.0421,
+        "NoDocbcCost": 0.038,
+        "Sex": 0.0296,
+        "AnyHealthcare": 0.0141
+    }
+}
