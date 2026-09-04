@@ -8,8 +8,6 @@ Universidad de La Sabana
 - Carmen Celeste Durán Báez
 - Mariana Salas Gutiérrez
 
----
-
 # 1. Contexto del problema
 
 La diabetes constituye un importante problema de salud pública a nivel
@@ -34,8 +32,6 @@ variable objetivo se transforma en una clasificación binaria:
 El objetivo es utilizar las variables disponibles para identificar patrones
 y realizar una clasificación de los individuos según la clase a la que
 pertenecen.
-
----
 
 # 2. Objetivo
 
@@ -69,7 +65,7 @@ Los principales resultados obtenidos fueron:
 - **Precision clase 1:** 35,29%
 - **F1-score clase 1:** 48,06%
 
----
+
 
 # 3. Cómo correr este proyecto en el repositorio
 
@@ -87,7 +83,7 @@ Ingresar a la carpeta del proyecto:
 cd aprendizaje-maquina-proyecto
 ```
 
----
+
 
 ## 3.2 Crear el entorno virtual
 
@@ -115,7 +111,7 @@ Activar el entorno:
 source .venv/bin/activate
 ```
 
----
+
 
 ## 3.3 Instalar las dependencias
 
@@ -125,7 +121,7 @@ Con el entorno virtual activado:
 pip install -r requirements.txt
 ```
 
----
+
 
 ## 3.4 Ejecutar `main.py`
 
@@ -137,7 +133,7 @@ Para ejecutarlo, desde la carpeta raíz del repositorio:
 python main.py
 ```
 
----
+
 
 ## 3.5 Ejecutar `app.py`
 
@@ -156,7 +152,7 @@ streamlit run ui/app.py
 Después de ejecutar el comando, Streamlit proporcionará una dirección
 local para acceder a la aplicación desde el navegador.
 
----
+
 
 # 4. Dashboard
 
@@ -164,7 +160,7 @@ Para ver el dashboard, ingresar al siguiente link:
 
 [(https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app](https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app/)
 
----
+
 
 # 5. Metodología CRISP-DM
 
@@ -285,7 +281,7 @@ Por lo tanto, el modelo presenta una capacidad relevante para identificar
 casos pertenecientes a la clase 1, aunque con una cantidad importante de
 falsos positivos.
 
----
+
 
 # 6. Estructura del proyecto
 
@@ -393,7 +389,7 @@ necesarias para reproducirlo.
 Contiene los archivos y carpetas que no deben ser incluidos en el
 repositorio.
 
----
+
 
 # 7. Decisiones técnicas
 
@@ -419,7 +415,7 @@ F1-score.
 
 Para la clasificación final se estableció un umbral de **0,51**.
 
----
+
 
 # 8. Resultados principales
 
@@ -429,7 +425,7 @@ predictoras.
 Los principales resultados obtenidos fueron:
 
 | Métrica | Resultado |
-|---|---:|
+||:|
 | Accuracy | 71,90% |
 | Balanced Accuracy | 73,25% |
 | ROC-AUC | 81,13% |
@@ -447,7 +443,7 @@ El resultado más relevante para la clase 1 es el **Recall de 75,32%**,
 indicando que el modelo identifica una proporción importante de las
 observaciones pertenecientes a la clase de prediabetes o diabetes.
 
----
+
 
 # 9. Interpretación de los resultados
 
@@ -469,7 +465,7 @@ Estos resultados muestran que el modelo tiene una capacidad relevante para
 identificar individuos pertenecientes a la clase 1, aunque presenta una
 cantidad importante de falsos positivos.
 
----
+
 
 # 10. Limitaciones
 
@@ -488,7 +484,7 @@ proporción importante de falsos positivos.
 Por tratarse de un proyecto académico, las predicciones generadas por el
 modelo no deben interpretarse como un diagnóstico médico.
 
----
+
 
 # 11. Conclusiones
 
@@ -512,7 +508,7 @@ En consecuencia, el modelo debe entenderse como una herramienta de análisis
 y predicción dentro del contexto académico del proyecto y no como una
 herramienta de diagnóstico médico.
 
----
+
 
 # 12. Referencias
 
@@ -524,4 +520,4 @@ herramienta de diagnóstico médico.
 
 [CDC Diabetes Health Indicators - UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators)
 
----
+
