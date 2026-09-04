@@ -114,11 +114,33 @@ NUMERIC_COLS = [
     "PhysHlth",
 ]
 
-ALL_FEATURES = (
-    BINARY_COLS
-    + ORDINAL_COLS
-    + NUMERIC_COLS
-)
+# ============================================================
+# ORDEN EXACTO UTILIZADO DURANTE EL ENTRENAMIENTO
+# ============================================================
+
+ALL_FEATURES = [
+    "HighBP",
+    "HighChol",
+    "CholCheck",
+    "BMI",
+    "Smoker",
+    "Stroke",
+    "HeartDiseaseorAttack",
+    "PhysActivity",
+    "Fruits",
+    "Veggies",
+    "HvyAlcoholConsump",
+    "AnyHealthcare",
+    "NoDocbcCost",
+    "GenHlth",
+    "MentHlth",
+    "PhysHlth",
+    "DiffWalk",
+    "Sex",
+    "Age",
+    "Education",
+    "Income",
+]
 
 FINAL_THRESHOLD = 0.51
 
@@ -288,9 +310,8 @@ def recursive_find(data, possible_names):
 
 def prepare_prediction_data(input_values):
     """
-    Prepara los datos introducidos por el usuario
-    para que tengan el mismo formato utilizado por
-    CatBoost durante el entrenamiento.
+    Prepara los datos exactamente de la misma manera
+    en que fueron preparados durante el entrenamiento.
     """
 
     row = pd.DataFrame(
@@ -298,27 +319,57 @@ def prepare_prediction_data(input_values):
         columns=ALL_FEATURES,
     )
 
-    # CatBoost recibe variables binarias y ordinales
-    # como variables categóricas.
+    # ========================================================
+    # REPRODUCIR EL FORMATO DEL DATASET ORIGINAL
+    # ========================================================
+
+    # Las variables categóricas deben conservar el formato
+    # decimal utilizado durante el preprocesamiento:
+    # 0.0, 1.0, 2.0, 3.0, etc.
+    
     for column in BINARY_COLS + ORDINAL_COLS:
-        row[column] = row[column].astype(str)
+
+        row[column] = (
+            row[column]
+            .astype(float)
+            .astype(str)
+        )
 
     return row
 
 
 def predict_diabetes(model, input_values):
     """
-    Genera la probabilidad y predicción utilizando
-    el modelo final de CatBoost.
+    Genera la predicción utilizando exactamente
+    el formato utilizado durante el entrenamiento.
     """
+
+    model_features = list(
+        model.feature_names_
+    )
 
     data = prepare_prediction_data(
         input_values
     )
 
-    categorical_features = [
-        data.columns.get_loc(column)
+    # Verificar orden
+    if list(data.columns) != model_features:
+
+        raise ValueError(
+            "El orden de las variables no coincide "
+            "con el modelo."
+        )
+
+    # Variables categóricas
+    categorical_columns = [
+        column
         for column in BINARY_COLS + ORDINAL_COLS
+        if column in model_features
+    ]
+
+    categorical_features = [
+        model_features.index(column)
+        for column in categorical_columns
     ]
 
     prediction_pool = Pool(
@@ -326,15 +377,146 @@ def predict_diabetes(model, input_values):
         cat_features=categorical_features,
     )
 
+    probabilities = model.predict_proba(
+        prediction_pool
+    )
+
     probability = float(
-        model.predict_proba(
-            prediction_pool
-        )[:, 1][0]
+        probabilities[0, 1]
     )
 
     prediction = int(
         probability >= FINAL_THRESHOLD
     )
+
+    # ========================================================
+    # DIAGNÓSTICO
+    # ========================================================
+
+    if st.session_state.get(
+        "debug_prediction",
+        False
+    ):
+
+        st.write(
+            "### 🔎 Diagnóstico definitivo"
+        )
+
+        st.write(
+            "**Columnas del modelo:**"
+        )
+
+        st.code(
+            str(model_features)
+        )
+
+        st.write(
+            "**Columnas enviadas:**"
+        )
+
+        st.code(
+            str(list(data.columns))
+        )
+
+        st.write(
+            "**Valores enviados al modelo:**"
+        )
+
+        st.dataframe(data)
+
+        st.write(
+            "**Variables categóricas:**"
+        )
+
+        st.code(
+            str(categorical_columns)
+        )
+
+        st.write(
+            "**Índices categóricos:**"
+        )
+
+        st.code(
+            str(categorical_features)
+        )
+
+        st.write(
+            "**Probabilidades:**"
+        )
+
+        st.code(
+            str(probabilities.tolist())
+        )
+
+        st.write(
+            f"**Probabilidad clase 1:** "
+            f"{probability:.12f}"
+        )
+
+    return prediction, probability
+
+    # ========================================================
+    # VERIFICACIÓN DEL ORDEN
+    # ========================================================
+
+    if list(data.columns) != model_features:
+        raise ValueError(
+            "El orden de las variables no coincide con "
+            "el modelo."
+        )
+
+    # ========================================================
+    # PREDICCIÓN DIRECTA CON EL MODELO
+    # ========================================================
+
+    probabilities = model.predict_proba(
+        data
+    )
+
+    probability = float(
+        probabilities[0, 1]
+    )
+
+    prediction = int(
+        probability >= FINAL_THRESHOLD
+    )
+
+    # ========================================================
+    # DIAGNÓSTICO
+    # ========================================================
+
+    if st.session_state.get(
+        "debug_prediction",
+        False
+    ):
+
+        st.write("### 🔎 Diagnóstico definitivo")
+
+        st.write(
+            "**Columnas del modelo:**"
+        )
+        st.code(
+            str(model_features)
+        )
+
+        st.write(
+            "**Columnas enviadas al modelo:**"
+        )
+        st.code(
+            str(list(data.columns))
+        )
+
+        st.write(
+            "**Probabilidades devueltas:**"
+        )
+        st.code(
+            str(probabilities.tolist())
+        )
+
+        st.write(
+            f"**Probabilidad clase 1:** "
+            f"{probability:.12f}"
+        )
 
     return prediction, probability
 
@@ -433,6 +615,7 @@ st.sidebar.caption(
 
 try:
     model = load_model()
+    
 except Exception as error:
     model = None
     st.sidebar.error(
