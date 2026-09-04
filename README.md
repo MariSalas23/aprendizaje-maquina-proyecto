@@ -35,14 +35,6 @@ El objetivo es utilizar las variables disponibles para identificar patrones
 y realizar una clasificación de los individuos según la clase a la que
 pertenecen.
 
-**Fuentes:**
-
-- International Diabetes Federation (IDF):  
-  https://diabetesatlas.org/es/data-by-location/global/
-
-- UCI Machine Learning Repository:  
-  https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators
-
 ---
 
 # 2. Objetivo
