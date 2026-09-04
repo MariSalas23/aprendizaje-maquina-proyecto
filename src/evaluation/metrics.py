@@ -17,9 +17,18 @@ Se evalúan los cuatro escenarios del proyecto:
 
 Las métricas se calculan sobre el conjunto de prueba.
 
-Los resultados se guardan en:
+Los resultados generales se guardan en:
 
     reports/comparison/metrics_all_models.json
+
+Las métricas del modelo final se guardan en:
+
+    reports/final_model/final_metrics.json
+
+El modelo final corresponde a:
+
+    CatBoost - Escenario A
+    Todas las 21 variables predictoras.
 """
 
 import json
@@ -78,6 +87,16 @@ COMPARISON_DIR = (
 METRICS_FILE = (
     COMPARISON_DIR
     / "metrics_all_models.json"
+)
+
+FINAL_MODEL_DIR = (
+    REPORTS_DIR
+    / "final_model"
+)
+
+FINAL_METRICS_FILE = (
+    FINAL_MODEL_DIR
+    / "final_metrics.json"
 )
 
 # Umbral utilizado actualmente para Logistic Regression.
@@ -341,7 +360,7 @@ def save_metrics(
 ):
     """
     Guarda las métricas de los cuatro escenarios
-    en formato JSON dentro de reports.
+    en formato JSON dentro de reports/comparison.
     """
 
     output_file.parent.mkdir(
@@ -363,6 +382,39 @@ def save_metrics(
         )
 
 
+def save_final_metrics(
+    final_metrics,
+    output_file=FINAL_METRICS_FILE,
+):
+    """
+    Guarda las métricas del modelo final
+    en formato JSON dentro de reports/final_model.
+
+    El modelo final corresponde a:
+
+        CatBoost - Escenario A
+        Todas las 21 variables predictoras.
+    """
+
+    output_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    with open(
+        output_file,
+        "w",
+        encoding="utf-8",
+    ) as file:
+
+        json.dump(
+            final_metrics,
+            file,
+            indent=4,
+            ensure_ascii=False,
+        )
+
+
 # ============================================================
 # EJECUCIÓN DIRECTA
 # ============================================================
@@ -372,6 +424,10 @@ if __name__ == "__main__":
     # --------------------------------------------------------
     # 1. Dataset
     # --------------------------------------------------------
+
+    print(
+        "\n=== CARGA Y PREPARACIÓN DEL DATASET ==="
+    )
 
     df = prepare_clean_dataset()
 
@@ -387,9 +443,29 @@ if __name__ == "__main__":
         get_selected_features()
     )
 
+    # Validación para asegurar que el ID
+    # no se utilice como predictor.
+
+    if "ID" in all_features:
+        raise ValueError(
+            "ERROR: la variable ID no debe utilizarse "
+            "como predictor."
+        )
+
+    if len(all_features) != 21:
+        raise ValueError(
+            "ERROR: se esperaban 21 variables predictoras "
+            f"en el Escenario A, pero se encontraron "
+            f"{len(all_features)}."
+        )
+
     # --------------------------------------------------------
     # 3. Partición
     # --------------------------------------------------------
+
+    print(
+        "\n=== CREACIÓN DE PARTICIONES ==="
+    )
 
     partition = (
         create_partition_scenarios(
@@ -498,11 +574,36 @@ if __name__ == "__main__":
     ] = catboost_b_metrics
 
     # ========================================================
-    # GUARDAR
+    # GUARDAR MÉTRICAS DE LOS CUATRO ESCENARIOS
     # ========================================================
 
     save_metrics(
         results
+    )
+
+    print(
+        "\nResultados de los cuatro escenarios "
+        "guardados en:"
+    )
+
+    print(
+        METRICS_FILE
+    )
+
+    # ========================================================
+    # GUARDAR MÉTRICAS DEL MODELO FINAL
+    # ========================================================
+
+    save_final_metrics(
+        catboost_a_metrics
+    )
+
+    print(
+        "\nMétricas del modelo final guardadas en:"
+    )
+
+    print(
+        FINAL_METRICS_FILE
     )
 
     # ========================================================
@@ -579,16 +680,81 @@ if __name__ == "__main__":
             f"{metrics['pr_auc_class_1']:.4f}"
         )
 
+    # ========================================================
+    # RESUMEN DEL MODELO FINAL
+    # ========================================================
+
     print(
         "\n" + "=" * 70
     )
 
     print(
-        "Resultados guardados en:"
+        "MODELO FINAL"
     )
 
     print(
-        METRICS_FILE
+        "=" * 70
+    )
+
+    print(
+        "\nModelo: CatBoost"
+    )
+
+    print(
+        "Escenario: A - Todas las variables"
+    )
+
+    print(
+        f"Variables predictoras: "
+        f"{len(all_features)}"
+    )
+
+    print(
+        f"Threshold: "
+        f"{catboost_a_metrics['threshold']:.2f}"
+    )
+
+    print(
+        f"Balanced Accuracy: "
+        f"{catboost_a_metrics['balanced_accuracy']:.4f}"
+    )
+
+    print(
+        f"Recall clase 1: "
+        f"{catboost_a_metrics['recall_class_1']:.4f}"
+    )
+
+    print(
+        f"Precision clase 1: "
+        f"{catboost_a_metrics['precision_class_1']:.4f}"
+    )
+
+    print(
+        f"F1 clase 1: "
+        f"{catboost_a_metrics['f1_class_1']:.4f}"
+    )
+
+    print(
+        f"F2 clase 1: "
+        f"{catboost_a_metrics['f2_class_1']:.4f}"
+    )
+
+    print(
+        f"ROC-AUC: "
+        f"{catboost_a_metrics['roc_auc']:.4f}"
+    )
+
+    print(
+        f"PR-AUC clase 1: "
+        f"{catboost_a_metrics['pr_auc_class_1']:.4f}"
+    )
+
+    print(
+        "\n" + "=" * 70
+    )
+
+    print(
+        "EVALUACIÓN FINALIZADA CORRECTAMENTE"
     )
 
     print(
