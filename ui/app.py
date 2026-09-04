@@ -19,7 +19,7 @@ La aplicación carga el modelo final previamente generado.
 
 from pathlib import Path
 import json
-
+import plotly.graph_objects as go
 import joblib
 import pandas as pd
 import streamlit as st
@@ -339,7 +339,6 @@ def predict_diabetes(model, input_values):
 
     return prediction, probability
 
-
 # ============================================================
 # ESTILOS
 # ============================================================
@@ -347,6 +346,7 @@ def predict_diabetes(model, input_values):
 st.markdown(
     """
     <style>
+    
         .main-title {
             font-size: 38px;
             font-weight: 700;
@@ -371,32 +371,46 @@ st.markdown(
             font-size: 13px;
             color: #666666;
         }
+
+        /* Botón principal */
+        .stButton > button[kind="primary"] {
+            background-color: #3c9bef !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            weight: bold !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        /* Hover */
+        .stButton > button[kind="primary"]:hover {
+            background-color: #F06F5D !important;
+            color: #FFFFFF !important;
+        }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 
+
 # ============================================================
 # SIDEBAR
 # ============================================================
 
-st.sidebar.title("🩺 Predicción de Diabetes")
+st.sidebar.title("Predicción de Diabetes")
 
 st.sidebar.markdown(
     """
-    **Proyecto de Machine Learning 1**
-
-    Dashboard interactivo basado en el modelo
-    final de CatBoost.
+    Utilizando de Indicadores de Salud y Estilo de Vida
     """
 )
 
 page = st.sidebar.radio(
-    "Navegación",
+    "**Menú**",
     [
         "Inicio",
-        "Análisis de datos",
+        "Caracterización de la población",
         "Desempeño del modelo",
         "Predicción individual",
     ],
@@ -405,13 +419,14 @@ page = st.sidebar.radio(
 st.sidebar.markdown("---")
 
 st.sidebar.caption(
-    "Metodología: CRISP-DM"
-)
+    """
+    Jorge Esteban Díaz Bernal
 
-st.sidebar.caption(
-    "Modelo final: CatBoost"
-)
+    Carmen Celeste Durán Báez
 
+    Mariana Salas Gutiérrez
+    """
+)
 
 # ============================================================
 # CARGA DE RECURSOS
@@ -431,7 +446,7 @@ except Exception as error:
 # 1. INICIO
 # ============================================================
 
-if page == "🏠 Inicio":
+if page == "Inicio":
 
     st.markdown(
         '<div class="main-title">'
@@ -443,127 +458,267 @@ if page == "🏠 Inicio":
 
     st.markdown(
         '<div class="subtitle">'
-        "Dashboard interactivo para análisis, "
-        "interpretación y predicción."
+        "Dashboard interactivo para análisis, interpretación y predicción."
         "</div>",
         unsafe_allow_html=True,
     )
 
     st.markdown("---")
 
-    st.subheader("Problema de análisis")
+    # ========================================================
+    # CONTEXTO: PROBLEMA DE LA DIABETES
+    # ========================================================
+
+    st.subheader("Contexto: El problema de la diabetes")
 
     st.write(
         """
-        El proyecto busca determinar en qué medida los
-        indicadores de salud, estilo de vida y características
-        sociodemográficas disponibles permiten caracterizar y
-        posteriormente predecir la presencia de diabetes o
-        prediabetes.
+        La diabetes constituye un importante problema de salud pública
+        a nivel mundial. Su presencia está relacionada con diferentes
+        factores de salud, estilo de vida y características
+        sociodemográficas, por lo que identificar patrones asociados
+        puede contribuir a detectar personas con mayor probabilidad
+        de presentar la enfermedad.
         """
     )
 
-    st.subheader("Objetivo")
+    # Indicadores de contexto
+    col1, col2 = st.columns(2)
 
-    st.write(
-        """
-        Desarrollar un modelo de clasificación capaz de
-        identificar individuos con diabetes o prediabetes
-        utilizando indicadores de salud, estilo de vida y
-        características sociodemográficas.
-        """
-    )
+    with col1:
+        st.container(border=True).markdown(
+            """
+            ### Situación mundial
 
-    st.markdown("---")
+            **1 de cada 9 adultos**
 
-    st.subheader("Resumen del proyecto")
+            vive con diabetes a nivel mundial [1].
+            """
+        )
 
+    # Calcular información de nuestra muestra
     try:
         df = load_data()
 
         total_records = len(df)
 
-        prevalence = (
-            df[TARGET].mean()
-            if TARGET in df.columns
-            else None
-        )
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        col1.metric(
-            "Observaciones",
-            f"{total_records:,}",
-        )
-
-        col2.metric(
-            "Variables predictoras",
-            "21",
-        )
-
-        col3.metric(
-            "Modelo final",
-            "CatBoost",
-        )
-
-        if prevalence is not None:
-            col4.metric(
-                "Clase 1",
-                f"{prevalence * 100:.2f}%",
-            )
+        if TARGET in df.columns:
+            class_1_count = int(df[TARGET].sum())
+            class_1_percentage = df[TARGET].mean() * 100
         else:
-            col4.metric(
-                "Umbral",
-                f"{FINAL_THRESHOLD:.2f}",
+            class_1_count = None
+            class_1_percentage = None
+
+    except Exception:
+        total_records = None
+        class_1_count = None
+        class_1_percentage = None
+
+    with col2:
+
+        if class_1_count is not None:
+
+            st.container(border=True).markdown(
+                f"""
+                ### Nuestra muestra
+
+                **{class_1_count:,} personas**
+
+                pertenecen a la **clase 1 (prediabetes o diabetes)**.
+                """
             )
 
-    except Exception as error:
+        else:
 
-        st.warning(
-            f"No fue posible cargar el dataset: {error}"
+            st.container(border=True).markdown(
+                """
+                ### Nuestra muestra
+
+                Los datos de la muestra no pudieron ser cargados.
+                """
+            )
+
+    st.caption(
+        "Fuente [1]: International Diabetes Federation (IDF), Diabetes Atlas 2025."
+    )
+
+    st.markdown("---")
+
+    # ========================================================
+    # PROBLEMA DE ANÁLISIS Y OBJETIVO
+    # ========================================================
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Problema de análisis")
+
+        st.write(
+            """
+            El proyecto busca determinar en qué medida los indicadores
+            de salud, estilo de vida y otras características
+            disponibles permiten caracterizar y posteriormente predecir
+            la presencia de diabetes o prediabetes.
+            """
+        )
+
+    with col2:
+        st.subheader("Objetivo")
+
+        st.write(
+            """
+            Desarrollar un modelo de clasificación capaz de identificar
+            individuos con diabetes o prediabetes utilizando indicadores
+            de salud, estilo de vida y características sociodemográficas.
+            """
+        )
+        
+    st.markdown("---")
+
+    # ========================================================
+    # FUENTE Y CONTEXTO DE LOS DATOS
+    # ========================================================
+
+    st.subheader("Fuente y contexto de los datos")
+
+    st.write(
+        """
+        El dataset utilizado en este proyecto corresponde al
+        conjunto **CDC Diabetes Health Indicators**, disponible
+        en el **UCI Machine Learning Repository**. El conjunto
+        contiene 253.680 observaciones y 21 variables predictoras.
+        """
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.info(
+            """
+            ### ¿Qué es el BRFSS?
+
+            El **Behavioral Risk Factor Surveillance System (BRFSS)**
+            es un sistema de vigilancia de salud pública de Estados
+            Unidos que recopila información sobre factores de riesgo,
+            condiciones de salud, comportamientos y prácticas de
+            prevención mediante encuestas a adultos.
+            """
+        )
+
+    with col2:
+        st.info(
+            """
+            ### ¿Quién financió el dataset?
+
+            De acuerdo con la documentación del **UCI Machine Learning
+            Repository**, el dataset fue financiado por el **Centers for
+            Disease Control and Prevention (CDC)**. El CDC es una agencia de salud pública de Estados Unidos
+            encargada de proteger la salud y prevenir enfermedades.
+            """
         )
 
     st.markdown("---")
 
-    st.subheader("Metodología CRISP-DM")
+    # ========================================================
+    # MODELO UTILIZADO
+    # ========================================================
 
-    cols = st.columns(6)
+    st.subheader("Modelo utilizado: CatBoost")
 
-    phases = [
-        ("1", "Business\nUnderstanding"),
-        ("2", "Data\nUnderstanding"),
-        ("3", "Data\nPreparation"),
-        ("4", "Modeling"),
-        ("5", "Evaluation"),
-        ("6", "Interpretation"),
-    ]
+    st.write(
+        """
+        Para realizar la predicción se utilizó **CatBoost**, un algoritmo
+        de aprendizaje automático basado en árboles de decisión que
+        combina múltiples árboles para realizar predicciones.
+        """
+    )
 
-    for column, (number, name) in zip(
-        cols,
-        phases,
-    ):
-        with column:
-            st.metric(
-                number,
-                name,
-            )
+
+    # ========================================================
+    # TABLA DE VARIABLES
+    # ========================================================
 
     st.markdown("---")
 
-    st.info(
+    st.subheader("Variables utilizadas")
+
+    
+    st.write(
+            """
+            **Interpretación del target:** en este proyecto,
+            la **clase 0** representa ausencia de diabetes y la
+            **clase 1** agrupa prediabetes y diabetes, de acuerdo
+            con la transformación definida para el proyecto.
+            """
+    )
+
+    st.write(
         """
-        **Interpretación del target:** en este proyecto,
-        la clase 0 representa ausencia de diabetes y la
-        clase 1 agrupa prediabetes/diabetes según la
-        transformación definida para el proyecto.
+        La siguiente tabla presenta las variables utilizadas
+        en el modelo y el significado de cada una.
+        """
+    )
+
+    variables_data = pd.DataFrame(
+        [
+            ["Diabetes_binary", "Objetivo", "Binaria", "0 = sin diabetes; 1 = prediabetes o diabetes"],
+            ["HighBP", "Predictora", "Binaria", "0 = sin presión arterial alta; 1 = presión arterial alta"],
+            ["HighChol", "Predictora", "Binaria", "0 = sin colesterol alto; 1 = colesterol alto"],
+            ["CholCheck", "Predictora", "Binaria", "0 = no se realizó control de colesterol en 5 años; 1 = sí"],
+            ["BMI", "Predictora", "Entera", "Índice de masa corporal"],
+            ["Smoker", "Predictora", "Binaria", "0 = no ha fumado al menos 100 cigarrillos; 1 = sí"],
+            ["Stroke", "Predictora", "Binaria", "0 = no ha tenido un accidente cerebrovascular; 1 = sí"],
+            ["HeartDiseaseorAttack", "Predictora", "Binaria", "0 = sin enfermedad coronaria ni infarto; 1 = con antecedente"],
+            ["PhysActivity", "Predictora", "Binaria", "0 = sin actividad física en los últimos 30 días; 1 = sí"],
+            ["Fruits", "Predictora", "Binaria", "0 = no consume frutas al menos una vez al día; 1 = sí"],
+            ["Veggies", "Predictora", "Binaria", "0 = no consume verduras al menos una vez al día; 1 = sí"],
+            ["HvyAlcoholConsump", "Predictora", "Binaria", "0 = no consumo elevado de alcohol; 1 = consumo elevado"],
+            ["AnyHealthcare", "Predictora", "Binaria", "0 = sin cobertura de salud; 1 = con algún tipo de cobertura"],
+            ["NoDocbcCost", "Predictora", "Binaria", "0 = pudo acceder al médico; 1 = no pudo hacerlo por el costo"],
+            ["GenHlth", "Predictora", "Ordinal", "Estado general de salud: 1 = excelente hasta 5 = deficiente"],
+            ["MentHlth", "Predictora", "Entera", "Número de días de los últimos 30 con salud mental no buena"],
+            ["PhysHlth", "Predictora", "Entera", "Número de días de los últimos 30 con salud física no buena"],
+            ["DiffWalk", "Predictora", "Binaria", "0 = sin dificultad para caminar o subir escaleras; 1 = con dificultad"],
+            ["Sex", "Predictora", "Binaria", "0 = mujer; 1 = hombre"],
+            ["Age", "Predictora", "Ordinal", "Grupo de edad codificado de 1 a 13"],
+            ["Education", "Predictora", "Ordinal", "Nivel educativo codificado de 1 a 6"],
+            ["Income", "Predictora", "Ordinal", "Nivel de ingresos codificado de 1 a 8"],
+        ],
+        columns=[
+            "Variable",
+            "Rol",
+            "Tipo",
+            "Descripción",
+        ],
+    )
+
+    st.dataframe(
+        variables_data,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    # ========================================================
+    # NOTA FINAL
+    # ========================================================
+
+    st.markdown("---")
+
+    st.error(
+        """
+        **Nota:** Esta herramienta corresponde a un proyecto
+        académico de Machine Learning y no constituye una
+        herramienta de diagnóstico médico.
         """
     )
 
     st.warning(
         """
-        **Nota:** esta herramienta corresponde a un proyecto
-        académico de Machine Learning y no constituye una
-        herramienta de diagnóstico médico.
+        **Fuente de los datos:**  
+        Los datos utilizados en este proyecto están disponibles en el
+        **UCI Machine Learning Repository**.
+    
+        [Consultar dataset](https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators)
         """
     )
 
@@ -572,205 +727,715 @@ if page == "🏠 Inicio":
 # 2. ANÁLISIS DE DATOS
 # ============================================================
 
-elif page == "Análisis de datos":
+elif page == "Caracterización de la población":
 
-    st.title("Análisis exploratorio de los datos")
+    st.title("Caracterización de la población")
 
     st.write(
         """
-        Esta sección presenta los principales hallazgos del
-        análisis exploratorio utilizado para comprender la
-        estructura de los datos y seleccionar las variables
-        utilizadas posteriormente en el modelado.
+        Esta sección permite caracterizar la población de la base
+        de datos e identificar diferencias entre las personas sin
+        diabetes y aquellas pertenecientes al grupo de
+        prediabetes/diabetes.
         """
     )
 
     try:
         df = load_data()
 
-        # ----------------------------------------------------
-        # Métricas generales
-        # ----------------------------------------------------
+        # ========================================================
+        # 1. RESUMEN GENERAL DE LA POBLACIÓN
+        # ========================================================
 
-        st.subheader("Resumen del dataset")
+        st.subheader("Resumen de la población")
+
+        total_personas = len(df)
+
+        personas_sin_diabetes = int(
+            (df[TARGET] == 0).sum()
+        )
+
+        personas_diabetes = int(
+            (df[TARGET] == 1).sum()
+        )
+
+        porcentaje_sin_diabetes = (
+            personas_sin_diabetes / total_personas * 100
+        )
+
+        porcentaje_diabetes = (
+            personas_diabetes / total_personas * 100
+        )
+
+
+        # ========================================================
+        # ESTILO DE LAS TARJETAS
+        # ========================================================
+
+        st.markdown(
+        """
+        <style>
+        .summary-card {
+            border: 1px solid rgba(128, 128, 128, 0.35);
+            border-radius: 12px;
+            padding: 22px;
+            height: 175px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.3;
+            min-height: 44px;
+        }
+
+        .summary-value {
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1;
+            margin-top: 10px;
+        }
+
+        .summary-pill-red {
+            display: inline-block;
+            background-color: #83c9ff;
+            color: #0068c9;
+            padding: 6px 13px;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .summary-pill-green {
+            display: inline-block;
+            background-color: #0068c9;
+            color: #83c9ff;
+            padding: 6px 13px;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+        )
+
+
+        # ========================================================
+        # TARJETAS
+        # ========================================================
 
         col1, col2, col3, col4 = st.columns(4)
 
-        col1.metric(
-            "Observaciones",
-            f"{len(df):,}",
-        )
 
-        col2.metric(
-            "Variables",
-            f"{len(df.columns):,}",
-        )
+        with col1:
+            st.markdown(
+                f'<div class="summary-card"><div class="summary-title">Total de personas</div><div class="summary-value">{total_personas:,}</div></div>',
+                unsafe_allow_html=True
+            )
 
-        col3.metric(
-            "Valores faltantes",
-            f"{df.isna().sum().sum():,}",
-        )
 
-        col4.metric(
-            "Duplicados",
-            f"{df.duplicated().sum():,}",
-        )
+        with col2:
+            st.markdown(
+                f'<div class="summary-card"><div class="summary-title">Sin diabetes</div><div class="summary-value">{personas_sin_diabetes:,}</div><span class="summary-pill-red">{porcentaje_sin_diabetes:.1f}%</span></div>',
+                unsafe_allow_html=True
+            )
+
+
+        with col3:
+            st.markdown(
+                f'<div class="summary-card"><div class="summary-title">Prediabetes / diabetes</div><div class="summary-value">{personas_diabetes:,}</div><span class="summary-pill-green">{porcentaje_diabetes:.1f}%</span></div>',
+                unsafe_allow_html=True
+            )
+
+
+        with col4:
+            st.markdown(
+                f'<div class="summary-card"><div class="summary-title">Variables predictoras</div><div class="summary-value">{len(ALL_FEATURES)}</div></div>',
+                unsafe_allow_html=True
+            )
+
 
         st.markdown("---")
 
-        # ----------------------------------------------------
-        # Target
-        # ----------------------------------------------------
+        # ========================================================
+        # 2. DISTRIBUCIÓN DEL TARGET
+        # ========================================================
 
         st.subheader(
-            "Distribución de diabetes / prediabetes"
+            "Distribución de la población según condición"
         )
 
-        if TARGET in df.columns:
-
-            target_counts = (
-                df[TARGET]
-                .value_counts()
-                .sort_index()
-            )
-
-            target_df = pd.DataFrame(
-                {
-                    "Clase": [
-                        "0 - No diabetes",
-                        "1 - Prediabetes / diabetes",
-                    ],
-                    "Cantidad": [
-                        target_counts.get(0, 0),
-                        target_counts.get(1, 0),
-                    ],
-                }
-            )
-
-            col1, col2 = st.columns(
-                [1, 1]
-            )
-
-            with col1:
-
-                st.bar_chart(
-                    target_df.set_index(
-                        "Clase"
-                    )
-                )
-
-            with col2:
-
-                prevalence = (
-                    df[TARGET].mean()
-                )
-
-                st.metric(
-                    "Prevalencia de clase 1",
-                    f"{prevalence * 100:.2f}%",
-                )
-
-                st.write(
-                    f"""
-                    De las **{len(df):,} observaciones**,
-                    aproximadamente el **{prevalence * 100:.2f}%**
-                    pertenece a la clase 1.
-                    """
-                )
-
-        st.markdown("---")
-
-        # ----------------------------------------------------
-        # Variables seleccionadas
-        # ----------------------------------------------------
-
-        st.subheader(
-            "Variables utilizadas por el modelo final"
-        )
-
-        selected_labels = pd.DataFrame(
+        target_df = pd.DataFrame(
             {
-                "Variable": ALL_FEATURES,
-                "Descripción": [
-                    VARIABLE_LABELS.get(
-                        variable,
-                        variable,
-                    )
-                    for variable in ALL_FEATURES
+                "Condición": [
+                    "Sin diabetes",
+                    "Prediabetes / diabetes",
+                ],
+                "Personas": [
+                    personas_sin_diabetes,
+                    personas_diabetes,
                 ],
             }
         )
 
-        st.dataframe(
-            selected_labels,
+        col1, col2 = st.columns([1.5, 1])
+
+        with col1:
+
+            import altair as alt
+
+            donut = (
+                alt.Chart(target_df)
+                .mark_arc(
+                    innerRadius=65,
+                    outerRadius=125
+                )
+                .encode(
+                    theta=alt.Theta(
+                        "Personas:Q",
+                        stack=True
+                    ),
+                    color=alt.Color(
+                        "Condición:N",
+                        legend=alt.Legend(
+                            title=None,
+                            orient="bottom"
+                        )
+                    ),
+                    tooltip=[
+                        alt.Tooltip(
+                            "Condición:N",
+                            title="Condición"
+                        ),
+                        alt.Tooltip(
+                            "Personas:Q",
+                            title="Personas",
+                            format=","
+                        ),
+                    ],
+                )
+                .properties(
+                    height=380
+                )
+            )
+
+            st.altair_chart(
+                donut,
+                use_container_width=True,
+                theme="streamlit"
+            )
+
+        with col2:
+
+            # Tarjeta: Sin diabetes
+            with st.container(border=True):
+                st.markdown("**Sin diabetes**")
+                st.markdown(
+                    f"### {porcentaje_sin_diabetes:.1f}%"
+                )
+
+            # Tarjeta: Prediabetes / diabetes
+            with st.container(border=True):
+                st.markdown("**Prediabetes / diabetes**")
+                st.markdown(
+                    f"### {porcentaje_diabetes:.1f}%"
+                )
+
+            st.write(
+        """
+        La mayor parte de la población analizada corresponde
+        al grupo sin diabetes, mientras que el grupo de
+        prediabetes/diabetes representa una proporción menor
+        del total.
+        """
+    )
+
+
+        st.markdown("---")
+
+        # ========================================================
+        # 3. PERFIL DEMOGRÁFICO
+        # ========================================================
+
+        st.subheader("Perfil demográfico")
+
+        st.write(
+            """
+            Comparación de las características demográficas entre
+            las personas sin diabetes y las personas pertenecientes
+            al grupo de prediabetes/diabetes.
+            """
+        )
+
+        # --------------------------------------------------------
+        # EDAD
+        # --------------------------------------------------------
+
+        st.markdown("### Distribución por grupo de edad")
+
+        age_labels = {
+            1: "18–24",
+            2: "25–29",
+            3: "30–34",
+            4: "35–39",
+            5: "40–44",
+            6: "45–49",
+            7: "50–54",
+            8: "55–59",
+            9: "60–64",
+            10: "65–69",
+            11: "70–74",
+            12: "75–79",
+            13: "80+",
+        }
+
+        age_comparison = (
+            df.groupby(
+                ["Age", TARGET]
+            )
+            .size()
+            .unstack(fill_value=0)
+        )
+
+        age_comparison = age_comparison.rename(
+            columns={
+                0: "Sin diabetes",
+                1: "Prediabetes / diabetes",
+            }
+        )
+
+        age_comparison.index = [
+            age_labels.get(
+                int(age),
+                str(age),
+            )
+            for age in age_comparison.index
+        ]
+
+        st.bar_chart(
+            age_comparison,
             use_container_width=True,
-            hide_index=True,
         )
+
+        st.caption(
+            "Cantidad de personas en cada grupo de edad, diferenciando por condición."
+        )
+
+        # --------------------------------------------------------
+        # SEXO
+        # --------------------------------------------------------
+
+        st.markdown("### Distribución por sexo")
+
+        sex_comparison = (
+            df.groupby(
+                ["Sex", TARGET]
+            )
+            .size()
+            .unstack(fill_value=0)
+        )
+
+        sex_comparison = sex_comparison.rename(
+            columns={
+                0: "Sin diabetes",
+                1: "Prediabetes / diabetes",
+            }
+        )
+
+        sex_comparison.index = [
+            "Mujeres" if int(sex) == 0
+            else "Hombres"
+            for sex in sex_comparison.index
+        ]
+
+        st.bar_chart(
+            sex_comparison,
+            use_container_width=True,
+        )
+
+        st.caption(
+                    "Cantidad de personas en cada grupo de sexo, diferenciando por condición."
+                )
 
         st.markdown("---")
 
-        # ----------------------------------------------------
-        # Figuras EDA
-        # ----------------------------------------------------
+        # ========================================================
+        # 4. EDUCACIÓN E INGRESOS
+        # ========================================================
 
         st.subheader(
-            "Hallazgos visuales del análisis exploratorio"
+            "Características socioeconómicas"
         )
 
-        tab1, tab2, tab3 = st.tabs(
-            [
-                "Variables numéricas",
-                "Variables ordinales",
-                "Variables binarias",
+        st.write(
+                """
+                Esta sección permite analizar las características socioeconómicas de la población, comparando los niveles educativos y de ingresos entre las personas sin diabetes y aquellas pertenecientes al grupo de prediabetes/diabetes.
+                """
+            )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            st.markdown("### Nivel educativo")
+
+            education_comparison = (
+                df.groupby(
+                    ["Education", TARGET]
+                )
+                .size()
+                .unstack(fill_value=0)
+            )
+
+            education_comparison = (
+                education_comparison.rename(
+                    columns={
+                        0: "Sin diabetes",
+                        1: "Prediabetes / diabetes",
+                    }
+                )
+            )
+
+            education_comparison.index = [
+                f"Nivel {int(value)}"
+                for value in education_comparison.index
             ]
-        )
 
-        with tab1:
-
-            show_image(
-                EDA_FIGURES_DIR
-                / "selected_numeric_distributions.png",
-                "Distribución de variables numéricas seleccionadas por clase.",
+            st.bar_chart(
+                education_comparison,
+                use_container_width=True,
             )
 
-        with tab2:
+            st.caption(
+                         "Distribución de las personas según su nivel de ingresos, diferenciando entre los grupos sin diabetes y prediabetes/diabetes."
+                            )
 
-            show_image(
-                EDA_FIGURES_DIR
-                / "selected_ordinal_distributions.png",
-                "Distribución de variables ordinales seleccionadas por clase.",
+        with col2:
+
+            st.markdown("### Nivel de ingresos")
+
+            income_comparison = (
+                df.groupby(
+                    ["Income", TARGET]
+                )
+                .size()
+                .unstack(fill_value=0)
             )
 
-        with tab3:
+            income_comparison = (
+                income_comparison.rename(
+                    columns={
+                        0: "Sin diabetes",
+                        1: "Prediabetes / diabetes",
+                    }
+                )
+            )
 
-            show_image(
-                EDA_FIGURES_DIR
-                / "selected_binary_prevalence.png",
-                "Prevalencia de variables binarias seleccionadas según la clase objetivo.",
+            income_comparison.index = [
+                f"Nivel {int(value)}"
+                for value in income_comparison.index
+            ]
+
+            st.bar_chart(
+                income_comparison,
+                use_container_width=True,
+            )
+
+            st.caption(
+                "Distribución de las personas según su nivel de ingresos, diferenciando entre los grupos sin diabetes y prediabetes/diabetes."
             )
 
         st.markdown("---")
 
-        st.subheader(
-            "Correlaciones entre variables"
+        # ========================================================
+        # 5. CONDICIONES DE SALUD
+        # ========================================================
+
+        st.subheader("Condiciones de salud")
+
+        health_variables = [
+            (
+                "HighBP",
+                "Presión arterial alta",
+            ),
+            (
+                "HighChol",
+                "Colesterol alto",
+            ),
+            (
+                "HeartDiseaseorAttack",
+                "Enfermedad cardíaca o ataque cardíaco",
+            ),
+            (
+                "Stroke",
+                "Antecedente de accidente cerebrovascular",
+            ),
+            (
+                "DiffWalk",
+                "Dificultad para caminar",
+            ),
+        ]
+
+        health_data = []
+
+        for variable, label in health_variables:
+
+            for condition in [0, 1]:
+
+                subset = df[
+                    df[TARGET] == condition
+                ]
+
+                percentage = (
+                    subset[variable].mean() * 100
+                )
+
+                health_data.append(
+                    {
+                        "Condición": label,
+                        "Grupo": (
+                            "Sin diabetes"
+                            if condition == 0
+                            else "Prediabetes / diabetes"
+                        ),
+                        "Porcentaje": percentage,
+                    }
+                )
+
+        health_long = pd.DataFrame(
+            health_data
         )
 
-        show_image(
-            EDA_FIGURES_DIR
-            / "spearman_correlation_matrix.png",
-            "Matriz de correlación de Spearman.",
+        health_comparison = (
+            health_long
+            .pivot(
+                index="Condición",
+                columns="Grupo",
+                values="Porcentaje",
+            )
+            .fillna(0)
+        )
+
+        st.bar_chart(
+            health_comparison,
+            use_container_width=True,
+        )
+
+        st.caption(
+            "Porcentaje de personas dentro de cada grupo que reportaron la condición."
         )
 
         st.markdown("---")
 
+        # ========================================================
+        # 6. HÁBITOS Y ESTILO DE VIDA
+        # ========================================================
+
         st.subheader(
-            "Outliers y distribución de variables numéricas"
+            "Hábitos y estilo de vida"
         )
 
-        show_image(
-            EDA_FIGURES_DIR
-            / "potential_outliers.png",
-            "Identificación exploratoria de posibles valores atípicos mediante IQR.",
+        lifestyle_variables = [
+            (
+                "Smoker",
+                "Fumadores",
+            ),
+            (
+                "PhysActivity",
+                "Realizan actividad física",
+            ),
+            (
+                "Fruits",
+                "Consumen frutas",
+            ),
+            (
+                "Veggies",
+                "Consumen vegetales",
+            ),
+            (
+                "HvyAlcoholConsump",
+                "Consumo elevado de alcohol",
+            ),
+        ]
+
+        lifestyle_data = []
+
+        for variable, label in lifestyle_variables:
+
+            for condition in [0, 1]:
+
+                subset = df[
+                    df[TARGET] == condition
+                ]
+
+                percentage = (
+                    subset[variable].mean() * 100
+                )
+
+                lifestyle_data.append(
+                    {
+                        "Característica": label,
+                        "Grupo": (
+                            "Sin diabetes"
+                            if condition == 0
+                            else "Prediabetes / diabetes"
+                        ),
+                        "Porcentaje": percentage,
+                    }
+                )
+
+        lifestyle_long = pd.DataFrame(
+            lifestyle_data
+        )
+
+        lifestyle_comparison = (
+            lifestyle_long
+            .pivot(
+                index="Característica",
+                columns="Grupo",
+                values="Porcentaje",
+            )
+            .fillna(0)
+        )
+
+        st.bar_chart(
+            lifestyle_comparison,
+            use_container_width=True,
+        )
+
+        st.caption(
+            "Porcentaje de personas dentro de cada grupo que presenta cada característica."
+        )
+
+        st.markdown("---")
+
+        # ========================================================
+        # 7. ACCESO A SERVICIOS DE SALUD
+        # ========================================================
+
+        st.subheader(
+            "Acceso y prevención en salud"
+        )
+
+        healthcare_variables = [
+            (
+                "AnyHealthcare",
+                "Tiene cobertura de salud",
+            ),
+            (
+                "CholCheck",
+                "Se realizó control de colesterol",
+            ),
+            (
+                "NoDocbcCost",
+                "No pudo consultar por costo",
+            ),
+        ]
+
+        healthcare_data = []
+
+        for variable, label in healthcare_variables:
+
+            for condition in [0, 1]:
+
+                subset = df[
+                    df[TARGET] == condition
+                ]
+
+                percentage = (
+                    subset[variable].mean() * 100
+                )
+
+                healthcare_data.append(
+                    {
+                        "Característica": label,
+                        "Grupo": (
+                            "Sin diabetes"
+                            if condition == 0
+                            else "Prediabetes / diabetes"
+                        ),
+                        "Porcentaje": percentage,
+                    }
+                )
+
+        healthcare_long = pd.DataFrame(
+            healthcare_data
+        )
+
+        healthcare_comparison = (
+            healthcare_long
+            .pivot(
+                index="Característica",
+                columns="Grupo",
+                values="Porcentaje",
+            )
+            .fillna(0)
+        )
+
+        st.bar_chart(
+            healthcare_comparison,
+            use_container_width=True,
+        )
+
+        st.caption(
+                    "Porcentaje de personas según su acceso a servicios de salud y prácticas de prevención, comparando ambos grupos."
+                )
+
+        st.markdown("---")
+
+        # ========================================================
+        # 8. SALUD GENERAL
+        # ========================================================
+
+        st.subheader(
+            "Percepción de salud general"
+        )
+
+        health_labels = {
+            1: "Excelente",
+            2: "Muy buena",
+            3: "Buena",
+            4: "Regular",
+            5: "Mala",
+        }
+
+        general_health_comparison = (
+            df.groupby(
+                ["GenHlth", TARGET]
+            )
+            .size()
+            .unstack(fill_value=0)
+        )
+
+        general_health_comparison = (
+            general_health_comparison.rename(
+                columns={
+                    0: "Sin diabetes",
+                    1: "Prediabetes / diabetes",
+                }
+            )
+        )
+
+        general_health_comparison.index = [
+            health_labels.get(
+                int(value),
+                str(value),
+            )
+            for value in general_health_comparison.index
+        ]
+
+        st.bar_chart(
+            general_health_comparison,
+            use_container_width=True,
+        )
+
+        st.caption(
+            "Distribución de la percepción de salud general, diferenciando entre los grupos sin diabetes y prediabetes/diabetes."
         )
 
     except Exception as error:
@@ -786,13 +1451,13 @@ elif page == "Análisis de datos":
 
 elif page == "Desempeño del modelo":
 
-    st.title("Desempeño y comparación de modelos")
+    st.title("Desempeño del modelo")
 
     st.write(
         """
-        En esta sección se presentan las métricas utilizadas
-        para evaluar los modelos de clasificación y seleccionar
-        el modelo final.
+        En esta sección se presentan las principales métricas de
+        desempeño del modelo final de CatBoost, seleccionado para
+        realizar la predicción de prediabetes/diabetes.
         """
     )
 
@@ -801,58 +1466,92 @@ elif page == "Desempeño del modelo":
         / "metrics_all_models.json"
     )
 
-    comparison_file = (
-        COMPARISON_DIR
-        / "model_comparison.json"
-    )
-
     metrics_data = load_json(
         metrics_file
     )
 
-    comparison_data = load_json(
-        comparison_file
-    )
-
     # --------------------------------------------------------
-    # Modelo final
+    # Modelo seleccionado
     # --------------------------------------------------------
 
     st.subheader(
-        "Modelo seleccionado"
+        "Desempeño de CatBoost"
     )
 
-    col1, col2, col3 = st.columns(3)
+    st.markdown(
+        """
+        <style>
+        .model-card {
+            border: 1px solid rgba(128, 128, 128, 0.35);
+            border-radius: 12px;
+            padding: 22px;
+            height: 140px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
 
-    col1.metric(
-        "Modelo",
-        "CatBoost",
+        .model-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.3;
+            min-height: 44px;
+        }
+
+        .model-value {
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1;
+            margin-top: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
     )
 
-    col2.metric(
-        "Escenario",
-        "A - Todas las variables",
-    )
+    model_cols = st.columns(3)
 
-    col3.metric(
-        "Threshold",
-        f"{FINAL_THRESHOLD:.2f}",
-    )
+    with model_cols[0]:
+        st.markdown(
+            '<div class="model-card">'
+            '<div class="model-title">Modelo</div>'
+            '<div class="model-value">CatBoost</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+    with model_cols[1]:
+        st.markdown(
+            f'<div class="model-card">'
+            f'<div class="model-title">Threshold</div>'
+            f'<div class="model-value">{FINAL_THRESHOLD:.2f}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+    with model_cols[2]:
+        st.markdown(
+            f'<div class="model-card">'
+            f'<div class="model-title">Variables utilizadas</div>'
+            f'<div class="model-value">{len(ALL_FEATURES)}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
 
     st.markdown("---")
 
     # --------------------------------------------------------
-    # Métricas
+    # Métricas del modelo
     # --------------------------------------------------------
 
     st.subheader(
-        "Métricas principales"
+        "Métricas de desempeño"
     )
 
     if metrics_data is not None:
 
-        # Intentamos localizar CatBoost A
-        # dentro de diferentes estructuras posibles.
+        # ----------------------------------------------------
+        # Localizar CatBoost A
+        # ----------------------------------------------------
 
         catboost_a = None
 
@@ -876,20 +1575,23 @@ elif page == "Desempeño del modelo":
                     catboost_a = (
                         metrics_data[key]
                     )
+
                     break
 
         if catboost_a is None:
 
-            catboost_a = (
-                recursive_find(
-                    metrics_data,
-                    [
-                        "CatBoost_A",
-                        "catboost_A",
-                        "catboost_a",
-                    ],
-                )
+            catboost_a = recursive_find(
+                metrics_data,
+                [
+                    "CatBoost_A",
+                    "catboost_A",
+                    "catboost_a",
+                ],
             )
+
+        # ----------------------------------------------------
+        # Extraer métricas
+        # ----------------------------------------------------
 
         if catboost_a is not None:
 
@@ -910,14 +1612,36 @@ elif page == "Desempeño del modelo":
                 ],
             )
 
-            recall_1 = recursive_find(
+            # ---------------- Clase 0 ----------------
+
+            precision_0 = recursive_find(
                 catboost_a,
                 [
-                    "recall_class_1",
-                    "Recall_1",
-                    "recall_1",
+                    "precision_class_0",
+                    "Precision_0",
+                    "precision_0",
                 ],
             )
+
+            recall_0 = recursive_find(
+                catboost_a,
+                [
+                    "recall_class_0",
+                    "Recall_0",
+                    "recall_0",
+                ],
+            )
+
+            f1_0 = recursive_find(
+                catboost_a,
+                [
+                    "f1_class_0",
+                    "F1_0",
+                    "f1_0",
+                ],
+            )
+
+            # ---------------- Clase 1 ----------------
 
             precision_1 = recursive_find(
                 catboost_a,
@@ -925,6 +1649,15 @@ elif page == "Desempeño del modelo":
                     "precision_class_1",
                     "Precision_1",
                     "precision_1",
+                ],
+            )
+
+            recall_1 = recursive_find(
+                catboost_a,
+                [
+                    "recall_class_1",
+                    "Recall_1",
+                    "recall_1",
                 ],
             )
 
@@ -936,6 +1669,8 @@ elif page == "Desempeño del modelo":
                     "f1_1",
                 ],
             )
+
+            # ---------------- Otras métricas ----------------
 
             roc_auc = recursive_find(
                 catboost_a,
@@ -956,80 +1691,388 @@ elif page == "Desempeño del modelo":
                 ],
             )
 
+            # ------------------------------------------------
+            # Estilo de las cajitas
+            # ------------------------------------------------
+
+            st.markdown(
+                """
+                <style>
+                .performance-card {
+                    border: 1px solid rgba(128, 128, 128, 0.35);
+                    border-radius: 12px;
+                    padding: 22px;
+                    height: 155px;
+                    box-sizing: border-box;
+                    margin-bottom: 20px;
+                }
+
+                .performance-title {
+                    font-size: 17px;
+                    font-weight: 600;
+                    line-height: 1.3;
+                    min-height: 44px;
+                }
+
+                .performance-value {
+                    font-size: 34px;
+                    font-weight: 700;
+                    line-height: 1;
+                    margin-top: 10px;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # =================================================
+            # DESEMPEÑO GENERAL
+            # =================================================
+
+            st.markdown(
+                "### Desempeño general"
+            )
+
             metric_cols = st.columns(4)
 
-            metric_cols[0].metric(
-                "Balanced Accuracy",
-                format_metric(
-                    balanced_accuracy,
-                    percentage=True,
-                ),
+            with metric_cols[0]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Exactitud (Accuracy)</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(accuracy, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[1]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Exactitud balanceada</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(balanced_accuracy, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[2]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Área bajo ROC (ROC-AUC)</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(roc_auc, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[3]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Área bajo PR (PR-AUC)</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(pr_auc, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            # =================================================
+            # CLASE 0
+            # =================================================
+
+            st.markdown(
+                "### Desempeño — Clase 0: Sin diabetes"
             )
 
-            metric_cols[1].metric(
-                "Recall clase 1",
-                format_metric(
-                    recall_1,
-                    percentage=True,
-                ),
+            metric_cols = st.columns(3)
+
+            with metric_cols[0]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Precisión</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(precision_0, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[1]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Sensibilidad (Recall)</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(recall_0, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[2]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Puntuación F1</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(f1_0, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            # =================================================
+            # CLASE 1
+            # =================================================
+
+            st.markdown(
+                "### Desempeño — Clase 1: Prediabetes / diabetes"
             )
 
-            metric_cols[2].metric(
-                "F1 clase 1",
-                format_metric(
-                    f1_1,
-                    percentage=True,
-                ),
-            )
+            metric_cols = st.columns(3)
 
-            metric_cols[3].metric(
-                "PR-AUC clase 1",
-                format_metric(
-                    pr_auc,
-                    percentage=True,
-                ),
-            )
+            with metric_cols[0]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Precisión</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(precision_1, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[1]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Sensibilidad (Recall)</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(recall_1, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            with metric_cols[2]:
+                st.markdown(
+                    f'<div class="performance-card">'
+                    f'<div class="performance-title">Puntuación F1</div>'
+                    f'<div class="performance-value">'
+                    f'{format_metric(f1_1, percentage=True)}'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+            # =================================================
+            # ¿QUÉ SIGNIFICA CADA MÉTRICA?
+            # =================================================
 
             st.markdown("---")
 
-            secondary_cols = st.columns(4)
-
-            secondary_cols[0].metric(
-                "Accuracy",
-                format_metric(
-                    accuracy,
-                    percentage=True,
-                ),
+            st.subheader(
+                "¿Qué significa cada métrica?"
             )
 
-            secondary_cols[1].metric(
-                "Precision clase 1",
-                format_metric(
-                    precision_1,
-                    percentage=True,
-                ),
+            st.write(
+                """
+                En este proyecto, la **clase 0** representa a las personas
+                sin diabetes y la **clase 1** corresponde al grupo de
+                prediabetes/diabetes. Cada métrica permite evaluar un aspecto
+                diferente del desempeño del modelo.
+                """
             )
 
-            secondary_cols[2].metric(
-                "ROC-AUC",
-                format_metric(
-                    roc_auc,
-                    percentage=True,
-                ),
-            )
+            # =================================================
+            # FILA 1
+            # =================================================
 
-            secondary_cols[3].metric(
-                "Threshold",
-                f"{FINAL_THRESHOLD:.2f}",
-            )
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.info(
+                    f"""
+                    **Exactitud (Accuracy)**
+
+                    Indica qué porcentaje del total de personas fue clasificado
+                    correctamente por el modelo.
+
+                    Con un resultado de **{format_metric(accuracy, percentage=True)}**,
+                    de cada 100 personas evaluadas, aproximadamente
+                    **{accuracy * 100:.0f} fueron clasificadas correctamente**.
+                    """
+                )
+
+            with col2:
+
+                st.error(
+                    f"""
+                    **Exactitud balanceada (Balanced Accuracy)**
+
+                    Mide el desempeño promedio del modelo en las dos clases,
+                    dando la misma importancia a cada una.
+
+                    Se presenta un desempeño promedio de aproximadamente
+                    **{balanced_accuracy * 100:.0f} de cada 100 casos** al considerar
+                    por igual ambas clases.
+                    """
+                )
+
+
+            # =================================================
+            # FILA 2 — CLASE 0
+            # =================================================
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.error(
+                    f"""
+                    **Precisión — Clase 0: Sin diabetes**
+
+                    Indica, de todas las personas que el modelo clasificó como
+                    **sin diabetes**, qué porcentaje realmente pertenecía a
+                    esta clase.
+
+                    Con una precisión de **{format_metric(precision_0, percentage=True)}**,
+                    de cada 100 personas clasificadas como sin diabetes,
+                    aproximadamente **{precision_0 * 100:.0f} realmente pertenecían
+                    a este grupo**.
+                    """
+                )
+
+            with col2:
+
+                st.info(
+                    f"""
+                    **Sensibilidad (Recall) — Clase 0: Sin diabetes**
+
+                    Indica qué porcentaje de las personas que realmente
+                    pertenecían a la clase **sin diabetes** fue identificado
+                    correctamente.
+
+                    Con un resultado de **{format_metric(recall_0, percentage=True)}**,
+                    de cada 100 personas que realmente pertenecían a esta clase,
+                    aproximadamente **{recall_0 * 100:.0f} fueron bien identificadas**.
+                    """
+                )
+
+
+            # =================================================
+            # FILA 3 — CLASE 0 / CLASE 1
+            # =================================================
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.info(
+                    f"""
+                    **Puntuación F1 — Clase 0: Sin diabetes**
+
+                    Combina la precisión y la sensibilidad de la clase 0
+                    en una sola medida.
+
+                    Con un resultado de **{format_metric(f1_0, percentage=True)}**,
+                    el modelo presenta un equilibrio entre identificar
+                    correctamente a las personas sin diabetes y realizar
+                    predicciones precisas para esta clase.
+                    """
+                )
+
+            with col2:
+
+                st.error(
+                    f"""
+                    **Precisión — Clase 1: Prediabetes / diabetes**
+
+                    Indica, de todos a los que se clasificaron cen
+                    **prediabetes/diabetes**, qué porcentaje realmente pertenecía
+                    a esta clase.
+
+                    De cada 100 personas clasificadas como prediabetes/diabetes,
+                    aproximadamente **{precision_1 * 100:.0f} realmente pertenecían
+                    a este grupo**.
+                    """
+                )
+
+
+            # =================================================
+            # FILA 4 — CLASE 1
+            # =================================================
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.error(
+                    f"""
+                    **Sensibilidad (Recall) — Clase 1: Prediabetes / diabetes**
+
+                    Indica qué porcentaje de las personas que realmente
+                    pertenecían al grupo de **prediabetes/diabetes** fue bien identificado.
+
+                    De cada 100 casos que pertenecían a la clase 1,
+                    aproximadamente **{recall_1 * 100:.0f} fueron bien identificados**.
+                    """
+                )
+
+            with col2:
+
+                st.info(
+                    f"""
+                    **Puntuación F1 — Clase 1: Prediabetes / diabetes**
+
+                    Combina la precisión y la sensibilidad de la clase 1
+                    en una sola medida.
+
+                    Con un resultado de **{format_metric(f1_1, percentage=True)}**,
+                    esta métrica resume el equilibrio entre identificar
+                    correctamente los casos de prediabetes/diabetes y
+                    evitar clasificaciones incorrectas.
+                    """
+                )
+
+
+            # =================================================
+            # FILA 5 — MÉTRICAS DE DISCRIMINACIÓN
+            # =================================================
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.info(
+                    f"""
+                    **Área bajo la curva ROC (ROC-AUC)**
+
+                    Mide la capacidad del modelo para diferenciar entre
+                    las dos clases utilizando las probabilidades que genera.
+
+                    Con un resultado de **{format_metric(roc_auc, percentage=True)}**,
+                    el modelo presenta una buena capacidad para distinguir
+                    entre personas sin diabetes y personas pertenecientes
+                    al grupo de prediabetes/diabetes.
+                    """
+                )
+
+            with col2:
+
+                st.error(
+                    f"""
+                    **Área bajo la curva Precisión-Recall (PR-AUC)**
+
+                    Evalúa el comportamiento del modelo al identificar
+                    principalmente la clase 1, considerando conjuntamente
+                    la precisión y la sensibilidad.
+
+                    Con un resultado de **{format_metric(pr_auc, percentage=True)}**,
+                    esta métrica resume el desempeño del modelo en la
+                    identificación de personas pertenecientes al grupo
+                    de prediabetes/diabetes.
+                    """
+                )
 
         else:
 
             st.info(
                 """
-                El archivo de métricas existe, pero su
-                estructura no permite identificar automáticamente
-                las métricas de CatBoost A.
+                El archivo de métricas existe, pero no fue posible
+                identificar automáticamente las métricas del modelo
+                CatBoost A.
                 """
             )
 
@@ -1038,79 +2081,6 @@ elif page == "Desempeño del modelo":
         st.warning(
             "No se encontró metrics_all_models.json."
         )
-
-    st.markdown("---")
-
-    # --------------------------------------------------------
-    # Comparación visual
-    # --------------------------------------------------------
-
-    st.subheader(
-        "Comparación de modelos"
-    )
-
-    comparison_images = [
-        (
-            "Balanced Accuracy",
-            "model_comparison_balanced_accuracy.png",
-        ),
-        (
-            "Recall clase 1",
-            "model_comparison_recall_class_1.png",
-        ),
-        (
-            "F1 clase 1",
-            "model_comparison_f1_class_1.png",
-        ),
-        (
-            "PR-AUC",
-            "model_comparison_pr_auc.png",
-        ),
-    ]
-
-    for title, filename in comparison_images:
-
-        st.markdown(
-            f"### {title}"
-        )
-
-        show_image(
-            COMPARISON_FIGURES_DIR
-            / filename,
-            title,
-        )
-
-    st.markdown("---")
-
-    # --------------------------------------------------------
-    # Interpretación
-    # --------------------------------------------------------
-
-    st.subheader(
-        "Lectura analítica"
-    )
-
-    st.write(
-        """
-        La selección del modelo no debe basarse únicamente en
-        Accuracy. Debido a que el problema presenta una clase
-        minoritaria, resulta importante analizar métricas como
-        Recall, F1, Balanced Accuracy y PR-AUC para determinar
-        qué tan bien identifica el modelo los casos pertenecientes
-        a la clase 1.
-        """
-    )
-
-    st.info(
-        """
-        En este proyecto, el umbral fue ajustado buscando
-        mantener un Recall de la clase 0 de al menos 70% y,
-        posteriormente, maximizar el Recall de la clase 1,
-        utilizando F2 y Balanced Accuracy como criterios de
-        desempate.
-        """
-    )
-
 
 # ============================================================
 # 4. PREDICCIÓN INDIVIDUAL
@@ -1313,13 +2283,12 @@ elif page == "Predicción individual":
             step=1,
         )
 
-        sex = st.selectbox(
+        sexo_opcion = st.selectbox(
             "Sexo",
-            [0, 1],
-            format_func=lambda x:
-                "Categoría 0" if x == 0
-                else "Categoría 1",
+            ["Mujer", "Hombre"],
         )
+
+        sexo = 0 if sexo_opcion == "Mujer" else 1
 
     st.markdown("---")
 
@@ -1338,22 +2307,54 @@ elif page == "Predicción individual":
         age = st.selectbox(
             "Grupo de edad",
             list(range(1, 14)),
+            format_func=lambda x: {
+                1: "18–24 años",
+                2: "25–29 años",
+                3: "30–34 años",
+                4: "35–39 años",
+                5: "40–44 años",
+                6: "45–49 años",
+                7: "50–54 años",
+                8: "55–59 años",
+                9: "60–64 años",
+                10: "65–69 años",
+                11: "70–74 años",
+                12: "75–79 años",
+                13: "80 años o más",
+            }[x],
         )
 
     with col2:
 
-        education = st.selectbox(
-            "Nivel educativo",
-            list(range(1, 7)),
-        )
+                education = st.selectbox(
+                    "Nivel educativo",
+                    list(range(1, 7)),
+                    format_func=lambda x: {
+                        1: "Sin escolaridad / jardín",
+                        2: "Primaria",
+                        3: "Secundaria incompleta",
+                        4: "Bachillerato completo",
+                        5: "Universidad o técnica (1–3 años)",
+                        6: "Universidad (4+ años)",
+                    }[x],
+                )
 
     with col3:
 
         income = st.selectbox(
             "Nivel de ingresos",
             list(range(1, 9)),
+            format_func=lambda x: {
+                1: "Menos de $10.000",
+                2: "$10.000 – $14.999",
+                3: "$15.000 – $19.999",
+                4: "$20.000 – $24.999",
+                5: "$25.000 – $34.999",
+                6: "$35.000 – $49.999",
+                7: "$50.000 – $74.999",
+                8: "$75.000 o más",
+            }[x],
         )
-
     st.markdown("---")
 
     # --------------------------------------------------------
@@ -1374,7 +2375,7 @@ elif page == "Predicción individual":
         "AnyHealthcare": healthcare,
         "NoDocbcCost": no_doc_cost,
         "DiffWalk": diff_walk,
-        "Sex": sex,
+        "Sex": sexo,
         "GenHlth": gen_hlth,
         "Age": age,
         "Education": education,
@@ -1385,7 +2386,7 @@ elif page == "Predicción individual":
     }
 
     if st.button(
-        "🔍 Generar predicción",
+        "Generar predicción",
         type="primary",
         use_container_width=True,
     ):
