@@ -65,11 +65,15 @@ Los principales resultados obtenidos fueron:
 - **Precision clase 1:** 35,29%
 - **F1-score clase 1:** 48,06%
 
+# 3. Dashboard
 
+Para ver el dashboard, ingresar al siguiente link:
 
-# 3. Cómo correr este proyecto en el repositorio
+[https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app](https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app/)
 
-## 3.1 Clonar el repositorio
+# 4. Cómo correr este proyecto en el repositorio
+
+## 4.1 Clonar el repositorio
 
 Desde una terminal ejecutar:
 
@@ -85,7 +89,7 @@ cd aprendizaje-maquina-proyecto
 
 
 
-## 3.2 Crear el entorno virtual
+## 4.2 Crear el entorno virtual
 
 Se recomienda utilizar **Python 3.12**.
 
@@ -113,7 +117,7 @@ source .venv/bin/activate
 
 
 
-## 3.3 Instalar las dependencias
+## 4.3 Instalar las dependencias
 
 Con el entorno virtual activado:
 
@@ -123,7 +127,7 @@ pip install -r requirements.txt
 
 
 
-## 3.4 Ejecutar `main.py`
+## 4.4 Ejecutar `main.py`
 
 El archivo `main.py` corresponde al pipeline principal del proyecto.
 
@@ -135,7 +139,7 @@ python main.py
 
 
 
-## 3.5 Ejecutar `app.py`
+## 4.5 Ejecutar `app.py`
 
 La interfaz de usuario se encuentra en:
 
@@ -151,15 +155,6 @@ streamlit run ui/app.py
 
 Después de ejecutar el comando, Streamlit proporcionará una dirección
 local para acceder a la aplicación desde el navegador.
-
-
-
-# 4. Dashboard
-
-Para ver el dashboard, ingresar al siguiente link:
-
-[(https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app](https://marisalas23-aprendizaje-maquina-proyecto-uiapp-1bhvhq.streamlit.app/)
-
 
 
 # 5. Metodología CRISP-DM
