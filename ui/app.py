@@ -395,10 +395,10 @@ st.sidebar.markdown(
 page = st.sidebar.radio(
     "Navegación",
     [
-        "🏠 Inicio",
-        "📊 Análisis de datos",
-        "🤖 Desempeño del modelo",
-        "🔮 Predicción individual",
+        "Inicio",
+        "Análisis de datos",
+        "Desempeño del modelo",
+        "Predicción individual",
     ],
 )
 
@@ -451,7 +451,7 @@ if page == "🏠 Inicio":
 
     st.markdown("---")
 
-    st.subheader("🎯 Problema de análisis")
+    st.subheader("Problema de análisis")
 
     st.write(
         """
@@ -476,7 +476,7 @@ if page == "🏠 Inicio":
 
     st.markdown("---")
 
-    st.subheader("📌 Resumen del proyecto")
+    st.subheader("Resumen del proyecto")
 
     try:
         df = load_data()
@@ -525,7 +525,7 @@ if page == "🏠 Inicio":
 
     st.markdown("---")
 
-    st.subheader("🔄 Metodología CRISP-DM")
+    st.subheader("Metodología CRISP-DM")
 
     cols = st.columns(6)
 
@@ -572,9 +572,9 @@ if page == "🏠 Inicio":
 # 2. ANÁLISIS DE DATOS
 # ============================================================
 
-elif page == "📊 Análisis de datos":
+elif page == "Análisis de datos":
 
-    st.title("📊 Análisis exploratorio de los datos")
+    st.title("Análisis exploratorio de los datos")
 
     st.write(
         """
@@ -784,9 +784,9 @@ elif page == "📊 Análisis de datos":
 # 3. DESEMPEÑO DEL MODELO
 # ============================================================
 
-elif page == "🤖 Desempeño del modelo":
+elif page == "Desempeño del modelo":
 
-    st.title("🤖 Desempeño y comparación de modelos")
+    st.title("Desempeño y comparación de modelos")
 
     st.write(
         """
@@ -819,7 +819,7 @@ elif page == "🤖 Desempeño del modelo":
     # --------------------------------------------------------
 
     st.subheader(
-        "🏆 Modelo seleccionado"
+        "Modelo seleccionado"
     )
 
     col1, col2, col3 = st.columns(3)
@@ -1087,7 +1087,7 @@ elif page == "🤖 Desempeño del modelo":
     # --------------------------------------------------------
 
     st.subheader(
-        "📌 Lectura analítica"
+        "Lectura analítica"
     )
 
     st.write(
@@ -1116,10 +1116,10 @@ elif page == "🤖 Desempeño del modelo":
 # 4. PREDICCIÓN INDIVIDUAL
 # ============================================================
 
-elif page == "🔮 Predicción individual":
+elif page == "Predicción individual":
 
     st.title(
-        "🔮 Predicción individual"
+        "Predicción individual"
     )
 
     st.write(
