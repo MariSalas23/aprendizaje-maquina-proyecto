@@ -631,16 +631,87 @@ def plot_numerical_by_target(
     plt.close(fig)
 
 
+def plot_numerical_density_by_target(
+    df,
+    output_dir=EDA_FIGURES_DIR
+):
+    """
+    Genera gráficos de densidad para comparar
+    la distribución de BMI, MentHlth y PhysHlth
+    entre las dos clases de Diabetes_binary.
+    """
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    fig, axes = plt.subplots(
+        1,
+        3,
+        figsize=(18, 5)
+    )
+
+    for ax, col in zip(
+        axes,
+        NUMERIC_COLS
+    ):
+
+        sns.kdeplot(
+            data=df[df[TARGET] == 0],
+            x=col,
+            fill=True,
+            alpha=0.3,
+            label="Sin diabetes",
+            ax=ax
+        )
+
+        sns.kdeplot(
+            data=df[df[TARGET] == 1],
+            x=col,
+            fill=True,
+            alpha=0.3,
+            label="Prediabetes/Diabetes",
+            ax=ax
+        )
+
+        ax.set_title(
+            f"Distribución de {col} según estado de diabetes"
+        )
+
+        ax.set_xlabel(
+            col
+        )
+
+        ax.set_ylabel(
+            "Densidad"
+        )
+
+        ax.legend()
+
+    plt.tight_layout()
+
+    fig.savefig(
+        output_dir / "numerical_density_by_target.png",
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    plt.close(fig)
+
+
 # ============================================================
 # 2.7 CORRELACIONES
 # ============================================================
 
 def spearman_correlation_analysis(df):
     """
-    Calcula la matriz de correlación de Spearman.
+    Calcula la matriz de correlación de Spearman
+    únicamente para las variables numéricas.
     """
 
-    corr_spearman = df.corr(
+    corr_spearman = df[NUMERIC_COLS].corr(
         method="spearman"
     )
 
@@ -653,7 +724,7 @@ def plot_spearman_correlation(
 ):
     """
     Genera la matriz de asociación de Spearman
-    exactamente con la configuración utilizada en el notebook.
+    únicamente para las variables numéricas.
     """
 
     output_dir = Path(output_dir)
@@ -662,23 +733,25 @@ def plot_spearman_correlation(
         exist_ok=True
     )
 
-    corr_spearman = df.corr(
+    corr_spearman = df[NUMERIC_COLS].corr(
         method="spearman"
     )
 
     plt.figure(
-        figsize=(16, 12)
+        figsize=(8, 6)
     )
 
     sns.heatmap(
         corr_spearman,
         cmap="coolwarm",
         center=0,
-        square=True
+        square=True,
+        annot=True,
+        fmt=".2f"
     )
 
     plt.title(
-        "Matriz de asociación - Spearman"
+        "Matriz de correlación de Spearman - Variables numéricas"
     )
 
     fig = plt.gcf()
@@ -712,7 +785,6 @@ def target_correlation_analysis(df):
     )
 
     return target_corr
-
 
 # ============================================================
 # 2.8 OUTLIERS

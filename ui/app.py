@@ -156,7 +156,6 @@ VARIABLE_LABELS = {
 # FUNCIONES AUXILIARES
 # ============================================================
 
-@st.cache_resource
 def load_model():
     """
     Carga el modelo final de CatBoost.
