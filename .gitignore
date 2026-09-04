@@ -65,9 +65,6 @@ htmlcov/
 # ==============================
 # Model files are ignored if they are generated locally.
 # The final model can be force-added to Git if required.
-models/*.joblib
-models/*.pkl
-models/*.pickle
 
 # ==============================
 # Generated reports
