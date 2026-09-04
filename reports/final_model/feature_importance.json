@@ -1,0 +1,86 @@
+[
+    {
+        "Variable": "Sex",
+        "Importancia": 24.48024362640972
+    },
+    {
+        "Variable": "BMI",
+        "Importancia": 18.742390135098905
+    },
+    {
+        "Variable": "Smoker",
+        "Importancia": 15.378672705108633
+    },
+    {
+        "Variable": "HighBP",
+        "Importancia": 9.135988437056163
+    },
+    {
+        "Variable": "CholCheck",
+        "Importancia": 6.990488806369708
+    },
+    {
+        "Variable": "HighChol",
+        "Importancia": 6.337047418768281
+    },
+    {
+        "Variable": "PhysHlth",
+        "Importancia": 4.053015181369256
+    },
+    {
+        "Variable": "Income",
+        "Importancia": 2.5687395775473307
+    },
+    {
+        "Variable": "AnyHealthcare",
+        "Importancia": 2.4783570083017366
+    },
+    {
+        "Variable": "MentHlth",
+        "Importancia": 2.1418419381305847
+    },
+    {
+        "Variable": "GenHlth",
+        "Importancia": 1.8300122466541406
+    },
+    {
+        "Variable": "Age",
+        "Importancia": 1.5986693517660673
+    },
+    {
+        "Variable": "PhysActivity",
+        "Importancia": 1.092314119501598
+    },
+    {
+        "Variable": "Education",
+        "Importancia": 0.8063035150060646
+    },
+    {
+        "Variable": "Stroke",
+        "Importancia": 0.61592959513629
+    },
+    {
+        "Variable": "NoDocbcCost",
+        "Importancia": 0.43672505250445565
+    },
+    {
+        "Variable": "HvyAlcoholConsump",
+        "Importancia": 0.3970397964131534
+    },
+    {
+        "Variable": "HeartDiseaseorAttack",
+        "Importancia": 0.3251195069818049
+    },
+    {
+        "Variable": "Veggies",
+        "Importancia": 0.22152820774350274
+    },
+    {
+        "Variable": "DiffWalk",
+        "Importancia": 0.21739969122938485
+    },
+    {
+        "Variable": "Fruits",
+        "Importancia": 0.1521740829031765
+    }
+]

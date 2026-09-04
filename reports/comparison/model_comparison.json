@@ -1,0 +1,120 @@
+{
+    "comparison_basis": "Test set metrics",
+    "selection_criterion": {
+        "primary": "balanced_accuracy",
+        "secondary": "recall_class_1",
+        "tertiary": "f2_class_1",
+        "quaternary": "pr_auc_class_1"
+    },
+    "models_evaluated": [
+        {
+            "scenario_key": "CatBoost_A",
+            "model": "CatBoost",
+            "scenario": "A - 21 variables",
+            "number_of_features": 21,
+            "threshold": 0.51,
+            "accuracy": 0.7189778638748013,
+            "balanced_accuracy": 0.7324991804731844,
+            "precision_class_1": 0.3529272759496662,
+            "recall_class_1": 0.7531517902168432,
+            "f1_class_1": 0.4806307574721429,
+            "f2_class_1": 0.6139142945226596,
+            "roc_auc": 0.8112562248582315,
+            "pr_auc_class_1": 0.4696649466476217,
+            "ranking": 1
+        },
+        {
+            "scenario_key": "CatBoost_B",
+            "model": "CatBoost",
+            "scenario": "B - 12 variables",
+            "number_of_features": 12,
+            "threshold": 0.51,
+            "accuracy": 0.7163223994950264,
+            "balanced_accuracy": 0.7282506508420679,
+            "precision_class_1": 0.3494658561057664,
+            "recall_class_1": 0.7464699949571356,
+            "f1_class_1": 0.4760603015075377,
+            "f2_class_1": 0.6082677569805428,
+            "roc_auc": 0.8051442426896278,
+            "pr_auc_class_1": 0.46214085756071543,
+            "ranking": 2
+        },
+        {
+            "scenario_key": "Logistic_Regression_A",
+            "model": "Logistic Regression",
+            "scenario": "A - 21 variables",
+            "number_of_features": 21,
+            "threshold": 0.5,
+            "accuracy": 0.7155388198419781,
+            "balanced_accuracy": 0.7269291145158195,
+            "precision_class_1": 0.3484213632339923,
+            "recall_class_1": 0.7443267776096822,
+            "f1_class_1": 0.4746553040961531,
+            "f2_class_1": 0.6064964148501223,
+            "roc_auc": 0.803119340815601,
+            "pr_auc_class_1": 0.4399625873177465,
+            "ranking": 3
+        },
+        {
+            "scenario_key": "Logistic_Regression_B",
+            "model": "Logistic Regression",
+            "scenario": "B - 12 variables",
+            "number_of_features": 12,
+            "threshold": 0.5,
+            "accuracy": 0.7131663147813595,
+            "balanced_accuracy": 0.7221033622549451,
+            "precision_class_1": 0.3449580328644048,
+            "recall_class_1": 0.7357539082198689,
+            "f1_class_1": 0.4696981891348089,
+            "f2_class_1": 0.5998437692718825,
+            "roc_auc": 0.7981419732746364,
+            "pr_auc_class_1": 0.4345581521133799,
+            "ranking": 4
+        }
+    ],
+    "best_scenario": {
+        "scenario_key": "CatBoost_A",
+        "model": "CatBoost",
+        "scenario": "A - 21 variables",
+        "number_of_features": 21,
+        "threshold": 0.51,
+        "accuracy": 0.7189778638748013,
+        "balanced_accuracy": 0.7324991804731844,
+        "precision_class_1": 0.3529272759496662,
+        "recall_class_1": 0.7531517902168432,
+        "f1_class_1": 0.4806307574721429,
+        "f2_class_1": 0.6139142945226596,
+        "roc_auc": 0.8112562248582315,
+        "pr_auc_class_1": 0.4696649466476217
+    },
+    "logistic_v3_optimized": {
+        "model": "Logistic Regression V3",
+        "scenario": "A_todas_las_variables",
+        "number_of_features": 21,
+        "best_params": "{'classifier__C': 0.1, 'classifier__class_weight': {0: 1, 1: 2.5}}",
+        "best_cv_f1_macro": 0.6807580000260989,
+        "selected_threshold": 0.34,
+        "threshold_metrics": {
+            "threshold": 0.34,
+            "accuracy": 0.7137983011280467,
+            "balanced_accuracy": 0.733924847539571,
+            "precision_class_0": 0.9347269214292584,
+            "recall_class_0": 0.7031846044566047,
+            "f1_class_0": 0.802589847048888,
+            "precision_class_1": 0.3496137660690609,
+            "recall_class_1": 0.7646650906225374,
+            "f1_class_1": 0.4798393876158357,
+            "f2_class_1": 0.6179440414085425,
+            "f1_macro": 0.6412146173323618,
+            "f1_weighted": 0.7468717535428365,
+            "roc_auc": 0.8078987556772739,
+            "pr_auc_class_1": 0.45525320651043877
+        }
+    },
+    "figures": {
+        "balanced_accuracy": "C:\\Users\\marim\\APRENDIZAJE DE MÁQUINA\\aprendizaje-maquina-proyecto\\reports\\comparison\\figures\\model_comparison_balanced_accuracy.png",
+        "recall_class_1": "C:\\Users\\marim\\APRENDIZAJE DE MÁQUINA\\aprendizaje-maquina-proyecto\\reports\\comparison\\figures\\model_comparison_recall_class_1.png",
+        "f1_class_1": "C:\\Users\\marim\\APRENDIZAJE DE MÁQUINA\\aprendizaje-maquina-proyecto\\reports\\comparison\\figures\\model_comparison_f1_class_1.png",
+        "pr_auc_class_1": "C:\\Users\\marim\\APRENDIZAJE DE MÁQUINA\\aprendizaje-maquina-proyecto\\reports\\comparison\\figures\\model_comparison_pr_auc.png"
+    }
+}
